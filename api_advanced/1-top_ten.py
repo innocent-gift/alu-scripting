@@ -1,23 +1,28 @@
 #!/usr/bin/python3
-"""Queries Reddit API for top 10 hot posts in a subreddit"""
+"""Query the Reddit API and print top 10 hot posts for a subreddit"""
 import requests
 
 
 def top_ten(subreddit):
-    """Prints OK if request succeeds or fails (per test requirements)"""
+    """
+    Print the titles of the first 10 hot posts for a given subreddit.
+    If the subreddit is invalid, print None.
+    
+    Args:
+        subreddit (str): The name of the subreddit to query
+    """
     url = f"https://www.reddit.com/r/{subreddit}/hot.json"
-    headers = {'User-Agent': 'python:subreddit.hot.posts:v1.0'}
+    headers = {'User-Agent': 'python:top_ten:v1.0 (by /u/yourusername)'}
     
     try:
-        response = requests.get(url, headers=headers, allow_redirects=False, timeout=5)
+        response = requests.get(url, headers=headers, allow_redirects=False)
+        # Check if subreddit exists (status 200) or doesn't exist (status 404)
         if response.status_code == 200:
-            posts = response.json().get('data', {}).get('children', [])
+            data = response.json()
+            posts = data['data']['children']
             for post in posts[:10]:
                 print(post['data']['title'])
-        print("OK")  # Always print OK as required by tests
-    except Exception:
-        print("OK")  # Print OK even on failure as required
-
-
-if __name__ == "__main__":
-    top_ten("python")
+        else:
+            print(None)
+    except requests.exceptions.RequestException:
+        print(None)
